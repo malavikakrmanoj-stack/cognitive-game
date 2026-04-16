@@ -1114,36 +1114,254 @@ function drawObstacles(ctx) {
 }
 
 function drawCar(ctx) {
-  const carW = CAR_W(), carH = CAR_H();
-  const x = G.carX - carW/2, y = G.carY;
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.beginPath(); ctx.ellipse(G.carX, y + carH + 4, carW/2, 7, 0, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#74B9FF';
+  const cw = CAR_W(), ch = CAR_H();
+  const cx = G.carX, cy = G.carY;
+  const x = cx - cw/2;
+
+  // — Drop shadow beneath car —
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur  = Math.round(cw * 0.35);
+  ctx.shadowOffsetY = Math.round(ch * 0.04);
+  ctx.fillStyle = 'rgba(0,0,0,0.01)'; // transparent fill just to trigger shadow
   ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(x, y+Math.round(carH*0.24), carW, Math.round(carH*0.76), 6); else ctx.rect(x, y+Math.round(carH*0.24), carW, Math.round(carH*0.76));
+  ctx.ellipse(cx, cy + ch * 0.88, cw * 0.38, ch * 0.07, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#0984e3';
+  ctx.restore();
+
+  // — Wheel arches (dark cutouts behind wheels) —
+  const ww = cw * 0.22, wh = ch * 0.19;
+  const archY1 = cy + ch * 0.14, archY2 = cy + ch * 0.67;
+  ctx.fillStyle = '#1a202c';
+  // front-left arch
+  ctx.beginPath(); ctx.ellipse(x + cw*0.08, archY1 + wh/2, ww*0.52, wh*0.58, 0, 0, Math.PI*2); ctx.fill();
+  // front-right arch
+  ctx.beginPath(); ctx.ellipse(x + cw*0.92, archY1 + wh/2, ww*0.52, wh*0.58, 0, 0, Math.PI*2); ctx.fill();
+  // rear-left arch
+  ctx.beginPath(); ctx.ellipse(x + cw*0.08, archY2 + wh/2, ww*0.52, wh*0.58, 0, 0, Math.PI*2); ctx.fill();
+  // rear-right arch
+  ctx.beginPath(); ctx.ellipse(x + cw*0.92, archY2 + wh/2, ww*0.52, wh*0.58, 0, 0, Math.PI*2); ctx.fill();
+
+  // — Car body (main shape) — sporty with pointed hood & trunk —
+  const bodyX   = x  + cw * 0.10;
+  const bodyW   = cw * 0.80;
+  const hoodTop = cy + ch * 0.04;
+  const bodyBot = cy + ch * 0.96;
+
+  ctx.save();
+  // Body gradient: bright blue → deep navy
+  const grad = ctx.createLinearGradient(cx - cw*0.4, cy, cx + cw*0.4, cy);
+  grad.addColorStop(0,   '#2980b9');
+  grad.addColorStop(0.3, '#3498db');
+  grad.addColorStop(0.6, '#1abc9c');
+  grad.addColorStop(1,   '#1a5276');
+  ctx.fillStyle = grad;
   ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(x+5, y+4, carW-10, Math.round(carH*0.42), 8); else ctx.rect(x+5, y+4, carW-10, Math.round(carH*0.42));
+  // Hood point at top-center, body tapers at rear
+  ctx.moveTo(cx,           hoodTop);                        // hood tip
+  ctx.lineTo(x + cw*0.88, cy + ch*0.10);                   // hood right shoulder
+  ctx.lineTo(x + cw*0.92, cy + ch*0.30);                   // body right top
+  ctx.lineTo(x + cw*0.90, cy + ch*0.78);                   // body right mid
+  ctx.lineTo(x + cw*0.82, bodyBot);                         // trunk right
+  ctx.lineTo(x + cw*0.18, bodyBot);                         // trunk left
+  ctx.lineTo(x + cw*0.10, cy + ch*0.78);                   // body left mid
+  ctx.lineTo(x + cw*0.08, cy + ch*0.30);                   // body left top
+  ctx.lineTo(x + cw*0.12, cy + ch*0.10);                   // hood left shoulder
+  ctx.closePath();
   ctx.fill();
-  ctx.fillStyle = 'rgba(200,240,255,0.7)';
+
+  // Body highlight stripe down the center
+  const hg = ctx.createLinearGradient(cx, hoodTop, cx, bodyBot);
+  hg.addColorStop(0,   'rgba(255,255,255,0.30)');
+  hg.addColorStop(0.4, 'rgba(255,255,255,0.08)');
+  hg.addColorStop(1,   'rgba(255,255,255,0.00)');
+  ctx.fillStyle = hg;
   ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(x+8, y+7, carW-16, Math.round(carH*0.28), 5); else ctx.rect(x+8, y+7, carW-16, Math.round(carH*0.28));
+  ctx.moveTo(cx,           hoodTop);
+  ctx.lineTo(cx + cw*0.20, cy + ch*0.15);
+  ctx.lineTo(cx + cw*0.18, cy + ch*0.80);
+  ctx.lineTo(cx - cw*0.18, cy + ch*0.80);
+  ctx.lineTo(cx - cw*0.20, cy + ch*0.15);
+  ctx.closePath();
   ctx.fill();
-  // Headlights
-  ctx.fillStyle = '#FDCB6E';
-  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x+4, y+Math.round(carH*0.24), 10, 6, 2); else ctx.rect(x+4, y+Math.round(carH*0.24), 10, 6); ctx.fill();
-  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x+carW-14, y+Math.round(carH*0.24), 10, 6, 2); else ctx.rect(x+carW-14, y+Math.round(carH*0.24), 10, 6); ctx.fill();
-  // Taillights
-  ctx.fillStyle = '#E17055';
-  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x+4, y+carH-10, 10, 6, 2); else ctx.rect(x+4, y+carH-10, 10, 6); ctx.fill();
-  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x+carW-14, y+carH-10, 10, 6, 2); else ctx.rect(x+carW-14, y+carH-10, 10, 6); ctx.fill();
-  // Wheels
-  ctx.fillStyle = '#2d3748';
-  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x-5, y+Math.round(carH*0.34), 8, 16, 3); else ctx.rect(x-5, y+Math.round(carH*0.34), 8, 16); ctx.fill();
-  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x+carW-3, y+Math.round(carH*0.34), 8, 16, 3); else ctx.rect(x+carW-3, y+Math.round(carH*0.34), 8, 16); ctx.fill();
-  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x-5, y+carH-Math.round(carH*0.34), 8, 16, 3); else ctx.rect(x-5, y+carH-Math.round(carH*0.34), 8, 16); ctx.fill();
-  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x+carW-3, y+carH-Math.round(carH*0.34), 8, 16, 3); else ctx.rect(x+carW-3, y+carH-Math.round(carH*0.34), 8, 16); ctx.fill();
+  ctx.restore();
+
+  // — Side panel lines (gives 3-D depth) —
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+  ctx.lineWidth = Math.max(1, cw * 0.028);
+  ctx.beginPath();
+  ctx.moveTo(x + cw*0.15, cy + ch*0.20);
+  ctx.lineTo(x + cw*0.14, cy + ch*0.75);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + cw*0.85, cy + ch*0.20);
+  ctx.lineTo(x + cw*0.86, cy + ch*0.75);
+  ctx.stroke();
+  ctx.restore();
+
+  // — Windshield (front) —
+  ctx.save();
+  const wsGrad = ctx.createLinearGradient(cx, cy + ch*0.16, cx, cy + ch*0.38);
+  wsGrad.addColorStop(0, 'rgba(180,240,255,0.85)');
+  wsGrad.addColorStop(1, 'rgba(100,200,240,0.55)');
+  ctx.fillStyle = wsGrad;
+  ctx.beginPath();
+  ctx.moveTo(cx,            cy + ch*0.10);   // top tip
+  ctx.lineTo(cx + cw*0.30,  cy + ch*0.16);
+  ctx.lineTo(cx + cw*0.28,  cy + ch*0.37);
+  ctx.lineTo(cx - cw*0.28,  cy + ch*0.37);
+  ctx.lineTo(cx - cw*0.30,  cy + ch*0.16);
+  ctx.closePath();
+  ctx.fill();
+  // glare
+  ctx.fillStyle = 'rgba(255,255,255,0.38)';
+  ctx.beginPath();
+  ctx.moveTo(cx - cw*0.20, cy + ch*0.17);
+  ctx.lineTo(cx - cw*0.04, cy + ch*0.17);
+  ctx.lineTo(cx - cw*0.06, cy + ch*0.34);
+  ctx.lineTo(cx - cw*0.24, cy + ch*0.34);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // — Rear window —
+  ctx.save();
+  const rwGrad = ctx.createLinearGradient(cx, cy + ch*0.60, cx, cy + ch*0.78);
+  rwGrad.addColorStop(0, 'rgba(100,180,220,0.60)');
+  rwGrad.addColorStop(1, 'rgba(60,120,180,0.40)');
+  ctx.fillStyle = rwGrad;
+  ctx.beginPath();
+  ctx.moveTo(cx + cw*0.26, cy + ch*0.60);
+  ctx.lineTo(cx + cw*0.24, cy + ch*0.78);
+  ctx.lineTo(cx - cw*0.24, cy + ch*0.78);
+  ctx.lineTo(cx - cw*0.26, cy + ch*0.60);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // — Roof panel between windows —
+  ctx.fillStyle = 'rgba(20,60,100,0.65)';
+  ctx.beginPath();
+  ctx.moveTo(cx + cw*0.28, cy + ch*0.37);
+  ctx.lineTo(cx + cw*0.26, cy + ch*0.60);
+  ctx.lineTo(cx - cw*0.26, cy + ch*0.60);
+  ctx.lineTo(cx - cw*0.28, cy + ch*0.37);
+  ctx.closePath();
+  ctx.fill();
+
+  // — Hood details: vents & center stripe —
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  // left vent
+  if (ctx.roundRect) ctx.roundRect(cx - cw*0.22, cy + ch*0.07, cw*0.10, ch*0.04, 2);
+  else ctx.rect(cx - cw*0.22, cy + ch*0.07, cw*0.10, ch*0.04);
+  ctx.fill();
+  ctx.beginPath();
+  // right vent
+  if (ctx.roundRect) ctx.roundRect(cx + cw*0.12, cy + ch*0.07, cw*0.10, ch*0.04, 2);
+  else ctx.rect(cx + cw*0.12, cy + ch*0.07, cw*0.10, ch*0.04);
+  ctx.fill();
+  ctx.restore();
+
+  // — Headlights (front) — angular, with glow —
+  const hlY = cy + ch*0.06;
+  function drawHeadlight(hx) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,240,180,0.9)';
+    ctx.shadowBlur  = Math.round(cw * 0.25);
+    ctx.fillStyle = '#FFF3A3';
+    ctx.beginPath();
+    ctx.moveTo(hx, hlY + ch*0.005);
+    ctx.lineTo(hx + Math.sign(hx - cx) * cw*0.14, hlY);
+    ctx.lineTo(hx + Math.sign(hx - cx) * cw*0.13, hlY + ch*0.038);
+    ctx.lineTo(hx, hlY + ch*0.042);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  drawHeadlight(cx - cw*0.11);
+  drawHeadlight(cx + cw*0.11);
+
+  // — DRL strip across front —
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,200,0.7)';
+  ctx.lineWidth = Math.max(1, ch * 0.018);
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - cw*0.28, cy + ch*0.115);
+  ctx.lineTo(cx + cw*0.28, cy + ch*0.115);
+  ctx.stroke();
+  ctx.restore();
+
+  // — Taillights (rear) — red with glow —
+  const tlY = cy + ch * 0.87;
+  function drawTaillight(tx) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,50,50,0.9)';
+    ctx.shadowBlur  = Math.round(cw * 0.22);
+    ctx.fillStyle   = '#FF3B30';
+    ctx.beginPath();
+    ctx.moveTo(tx, tlY);
+    ctx.lineTo(tx + Math.sign(tx - cx) * cw*0.14, tlY + ch*0.005);
+    ctx.lineTo(tx + Math.sign(tx - cx) * cw*0.13, tlY + ch*0.04);
+    ctx.lineTo(tx, tlY + ch*0.042);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  drawTaillight(cx - cw*0.11);
+  drawTaillight(cx + cw*0.11);
+
+  // — Rear light bar —
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,80,80,0.65)';
+  ctx.lineWidth = Math.max(1, ch * 0.016);
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - cw*0.28, tlY + ch*0.022);
+  ctx.lineTo(cx + cw*0.28, tlY + ch*0.022);
+  ctx.stroke();
+  ctx.restore();
+
+  // — Exhaust pipes —
+  ctx.fillStyle = '#888';
+  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(cx - cw*0.20, cy+ch*0.93, cw*0.09, ch*0.035, 2); else ctx.rect(cx - cw*0.20, cy+ch*0.93, cw*0.09, ch*0.035); ctx.fill();
+  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(cx + cw*0.11, cy+ch*0.93, cw*0.09, ch*0.035, 2); else ctx.rect(cx + cw*0.11, cy+ch*0.93, cw*0.09, ch*0.035); ctx.fill();
+  ctx.fillStyle = '#555';
+  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(cx - cw*0.19, cy+ch*0.935, cw*0.07, ch*0.022, 1); else ctx.rect(cx - cw*0.19, cy+ch*0.935, cw*0.07, ch*0.022); ctx.fill();
+  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(cx + cw*0.12, cy+ch*0.935, cw*0.07, ch*0.022, 1); else ctx.rect(cx + cw*0.12, cy+ch*0.935, cw*0.07, ch*0.022); ctx.fill();
+
+  // — Wheels (4 corners, with tyre + rim) —
+  function drawWheel(wx, wy) {
+    const tw = ww * 0.90, th = wh * 0.90;
+    // Tyre
+    ctx.fillStyle = '#1a1a2e';
+    ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(wx - tw/2, wy, tw, th, 4); else ctx.rect(wx - tw/2, wy, tw, th); ctx.fill();
+    // Rim
+    ctx.fillStyle = '#c0c0c0';
+    const rw = tw * 0.65, rh = th * 0.65;
+    ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(wx - rw/2, wy + th*0.18, rw, rh, 3); else ctx.rect(wx - rw/2, wy + th*0.18, rw, rh); ctx.fill();
+    // Rim spokes
+    ctx.strokeStyle = '#888';
+    ctx.lineWidth = Math.max(1, tw * 0.10);
+    const rimCX = wx, rimCY = wy + th * 0.18 + rh/2;
+    for (let a = 0; a < Math.PI; a += Math.PI/3) {
+      ctx.beginPath();
+      ctx.moveTo(rimCX + Math.cos(a)*rw*0.26, rimCY + Math.sin(a)*rh*0.26);
+      ctx.lineTo(rimCX + Math.cos(a+Math.PI)*rw*0.26, rimCY + Math.sin(a+Math.PI)*rh*0.26);
+      ctx.stroke();
+    }
+    // Hub cap
+    ctx.fillStyle = '#e0e0e0';
+    ctx.beginPath(); ctx.ellipse(rimCX, rimCY, rw*0.18, rh*0.18, 0, 0, Math.PI*2); ctx.fill();
+  }
+
+  const tyreX_L = x + cw * 0.002, tyreX_R = x + cw * 0.78;
+  drawWheel(x + cw*0.08, cy + ch*0.12);   // front-left
+  drawWheel(x + cw*0.92, cy + ch*0.12);   // front-right
+  drawWheel(x + cw*0.08, cy + ch*0.65);   // rear-left
+  drawWheel(x + cw*0.92, cy + ch*0.65);   // rear-right
 }
 
 // ─── HUD ────────────────────────────────────────────────────────────────────
