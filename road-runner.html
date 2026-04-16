@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" id="metaViewport">
 <title>Road Runner · Cognitive Training Games</title>
 <style>
 /* ═══ CSS VARIABLES ═══ */
@@ -50,9 +50,6 @@ body {
   -webkit-user-select: none;
   touch-action: manipulation;
   transition: background 0.3s, color 0.3s;
-  /* Prevent scrollbars from appearing due to scale overflow */
-  max-width: 100vw;
-  max-height: 100vh;
 }
 
 #ctg-zoom-wrap {
@@ -61,21 +58,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transform-origin: top left;
-}
-
-/* ── LANDSCAPE ZOOM-OUT (67%) ── */
-@media (orientation: landscape) {
-  body {
-    overflow: hidden;
-    background: var(--bg);
-  }
-  #ctg-zoom-wrap {
-    transform: scale(0.67);
-    transform-origin: top left;
-    width: calc(100vw / 0.67);
-    height: calc(100vh / 0.67);
-  }
+  transform-origin: top center;
 }
 
 /* ── HEADER ── */
@@ -488,7 +471,7 @@ body.ls-active #gameScreen.active { padding-bottom: 0; }
 }
 
 /* ══ LANDSCAPE ══ */
-@media (orientation: landscape) {
+@media (orientation: landscape) and (max-height: 500px) {
   /* Compact header */
   .header { min-height: 40px; padding-top: max(env(safe-area-inset-top),4px); padding-bottom: 4px; }
   .back-btn { min-height: 32px; font-size: 12px; padding: 4px 9px; }
@@ -583,6 +566,19 @@ body.ls-active #gameScreen.active { padding-bottom: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ── LANDSCAPE ZOOM: 80% on phones ── */
+@media (orientation: landscape) and (max-height: 500px) {
+  html {
+    /* CSS zoom shrinks everything uniformly — no layout side-effects */
+    zoom: 0.8;
+  }
+  /* Compensate: make the page fill the real viewport again */
+  body, #ctg-zoom-wrap {
+    height: calc(100vh / 0.8);
+    min-height: calc(100dvh / 0.8);
+  }
 }
 </style>
 </head>
@@ -780,7 +776,7 @@ function resizeCanvas() {
 let landscapeMode = false;
 
 function isLandscapeQuery() {
-  return window.matchMedia('(orientation: landscape)').matches;
+  return window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
 }
 
 function applyLandscapeLayout() {
@@ -1507,5 +1503,22 @@ wireBtn('playAgainBtn', startCountdown);
 wireBtn('backToMenuBtn', goToMenu);
 </script>
 <script src="shared.js" onerror="void 0"></script>
-</body>
+<script>
+/* ── Landscape zoom: set viewport initial-scale to 0.8 on phone landscape ── */
+(function() {
+  var meta = document.getElementById('metaViewport');
+  function applyZoom() {
+    var isLandscape = window.innerWidth > window.innerHeight;
+    var isPhone = window.innerHeight <= 500 || window.innerWidth <= 900;
+    if (isLandscape && isPhone) {
+      meta.setAttribute('content', 'width=device-width, initial-scale=0.8, viewport-fit=cover, user-scalable=no');
+    } else {
+      meta.setAttribute('content', 'width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no');
+    }
+  }
+  applyZoom();
+  window.addEventListener('orientationchange', function() { setTimeout(applyZoom, 100); });
+  window.addEventListener('resize', applyZoom);
+})();
+</script>
 </html>
