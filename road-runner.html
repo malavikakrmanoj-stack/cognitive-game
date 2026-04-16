@@ -144,6 +144,11 @@ body {
 #gameScreen.active {
   padding-bottom: calc(78px + max(env(safe-area-inset-bottom), 0px));
 }
+@media (orientation: landscape) and (max-height: 600px) {
+  #gameScreen.active {
+    padding-bottom: calc(50px + max(env(safe-area-inset-bottom), 0px));
+  }
+}
 
 /* ── MENU ── */
 .menu-body {
@@ -467,7 +472,7 @@ body {
 }
 
 /* ══ LANDSCAPE ══ */
-@media (orientation: landscape) and (max-height: 500px) {
+@media (orientation: landscape) and (max-height: 600px) {
   .header { min-height: 44px; padding-top: max(env(safe-area-inset-top),5px); padding-bottom: 5px; }
   .back-btn { min-height: 34px; font-size: 13px; padding: 5px 10px; }
   .level-badge { font-size: 12px; padding: 4px 10px; }
@@ -480,8 +485,8 @@ body {
   .stat-box { padding: 4px 6px; }
   .stat-value { font-size: 16px; }
   .stat-label { font-size: 9px; }
-  .controls-row { flex-direction: row; padding: 6px max(env(safe-area-inset-right),8px) max(env(safe-area-inset-bottom),6px) max(env(safe-area-inset-left),8px); gap: 8px; }
-  .lane-btn { min-height: 44px; font-size: 13px; padding: 8px; border-radius: 10px; }
+  .controls-row { flex-direction: row; padding: 4px max(env(safe-area-inset-right),8px) max(env(safe-area-inset-bottom),4px) max(env(safe-area-inset-left),8px); gap: 8px; }
+  .lane-btn { min-height: 36px; font-size: 13px; padding: 6px 8px; border-radius: 10px; }
   .status-msg { font-size: 11px; }
 
   .menu-body {
@@ -709,7 +714,7 @@ function resizeCanvas() {
   const cssW = rect.width  || wrapper.offsetWidth  || 360;
   const cssH = rect.height || wrapper.offsetHeight || 480;
   // Guard: if height is suspiciously small (canvas looks horizontal), skip
-  if (cssH < 80) { setTimeout(resizeCanvas, 80); return; }
+  if (cssH < 50) { setTimeout(resizeCanvas, 80); return; }
   CANVAS_W = Math.round(cssW * dpr);
   CANVAS_H = Math.round(cssH * dpr);
   const canvas = document.getElementById('roadCanvas');
@@ -724,7 +729,7 @@ function resizeCanvas() {
 let landscapeMode = false;
 
 function applyLandscapeLayout() {
-  const isLandscape = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
+  const isLandscape = window.matchMedia('(orientation: landscape) and (max-height: 600px)').matches;
   const layout = document.getElementById('gameLayout');
   if (!layout) return;
 
