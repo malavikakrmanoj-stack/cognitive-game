@@ -903,7 +903,7 @@ function resizeCanvas() {
 
   // Re-clamp car position after resize so it's never off-screen
   if (G && G.running) {
-    G.carY = Math.min(G.carY, CANVAS_H - Math.round(CANVAS_H * 0.10));
+    G.carY = Math.min(G.carY, CANVAS_H - Math.round(CANVAS_H * 0.22));
     G.carX = G.carLane === 'left' ? LEFT_LANE_X : RIGHT_LANE_X;
     G.carTargetX = G.carX;
   }
@@ -1129,9 +1129,9 @@ function startGame() {
         resizeCanvas(); // third pass — guarantees wrapper has final size
         G.carX        = LEFT_LANE_X;
         G.carTargetX  = LEFT_LANE_X;
-        G.carY        = CANVAS_H - Math.round(CANVAS_H * 0.25);
-        // Safety clamp: car must be at least 15% from bottom edge
-        G.carY = Math.min(G.carY, CANVAS_H - Math.round(CANVAS_H * 0.15));
+        G.carY        = CANVAS_H - Math.round(CANVAS_H * 0.30);
+        // Safety clamp: car must be at least 22% from bottom edge (car height 17% + exhaust buffer)
+        G.carY = Math.min(G.carY, CANVAS_H - Math.round(CANVAS_H * 0.22));
         updateHUD(); setStatus('Dodge the obstacles!', '');
         highlightLane('left');
         G.running     = true;
