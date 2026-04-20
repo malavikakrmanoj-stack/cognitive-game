@@ -161,22 +161,36 @@ body {
 .screen { display: none; flex-direction: column; width: 100%; flex: 1; overflow: hidden; }
 .screen.active { display: flex; }
 
-/* Portrait: no bottom padding needed — controls are inline in layout */
+/* Game screen: always column, stats top, canvas middle, buttons bottom */
 #gameScreen.active {
-  padding-bottom: 0;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  padding: 0;
 }
-/* Landscape: buttons are inline so no bottom padding needed */
-body.ls-active #gameScreen.active {
-  padding-bottom: 0;
-  height: 100%;
-  flex: 1;
-  min-height: 0;
+
+/* Stats bar always at top of game screen */
+#gameScreen > .stats-bar {
+  flex-shrink: 0;
+  display: flex;
+  gap: 5px;
+  padding: 4px max(env(safe-area-inset-right),8px) 4px max(env(safe-area-inset-left),8px);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
+
+/* Controls row always at bottom of game screen */
+#gameScreen > .controls-row {
+  flex-shrink: 0;
+  display: none;
+  gap: 8px;
+  padding: 8px max(env(safe-area-inset-right),8px) max(env(safe-area-inset-bottom),8px) max(env(safe-area-inset-left),8px);
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+#gameScreen > .controls-row.visible { display: flex; }
 
 /* ── MENU ── */
 .menu-body {
@@ -337,7 +351,7 @@ body.ls-active #gameScreen.active {
   flex-direction: column;
   overflow: hidden;
   min-height: 0;
-  padding: 3px max(env(safe-area-inset-right),8px) 3px max(env(safe-area-inset-left),8px);
+  padding: 4px max(env(safe-area-inset-right),8px) 4px max(env(safe-area-inset-left),8px);
   gap: 3px;
   align-items: stretch;
   width: 100%;
@@ -367,8 +381,6 @@ body.ls-active #gameScreen.active {
   position: relative;
   background: #2d3748;
   min-height: 0;
-  /* Portrait: header~52 + stats~42 + status~22 + buttons~50 + gaps~24 = ~190px */
-  max-height: calc(100dvh - 190px);
   display: flex;
   width: 100%;
   align-self: center;
@@ -388,19 +400,16 @@ body.ls-active #gameScreen.active {
 
 /* ── TOUCH CONTROLS ── */
 .controls-row {
-  display: none; /* hidden until game starts */
+  display: none;
   gap: 8px;
-  position: relative;
-  width: 100%;
-  padding: 6px 8px 8px 8px;
+  padding: 8px max(env(safe-area-inset-right),8px) max(env(safe-area-inset-bottom),8px) max(env(safe-area-inset-left),8px);
   background: var(--bg);
   border-top: 1px solid var(--border);
-  z-index: 100;
-  transition: background 0.3s;
   flex-direction: row;
   flex-shrink: 0;
   justify-content: center;
   align-items: stretch;
+  transition: background 0.3s;
 }
 .controls-row.visible { display: flex; }
 
@@ -565,77 +574,22 @@ body.ls-active #gameScreen.active {
   .game-title { font-size: 14px; }
   .settings-link { width: 28px; height: 28px; font-size: 14px; }
 
-  /* ── GAME SCREEN: full flex row ── */
+  /* ── GAME SCREEN: keep column layout in landscape too ── */
   #gameScreen.active { padding-bottom: 0; }
 
   .game-layout {
-    flex-direction: row;
-    padding: 4px max(env(safe-area-inset-right), 6px) max(env(safe-area-inset-bottom), 4px) max(env(safe-area-inset-left), 6px);
-    gap: 6px;
-    align-items: stretch;
-    height: 100%;
+    padding: 3px max(env(safe-area-inset-right), 6px) 3px max(env(safe-area-inset-left), 6px);
+    gap: 3px;
   }
 
-  /* Left control panel */
-  .right-col {
-    width: clamp(120px, 28vw, 175px);
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
+  /* Stats bar stays compact at top */
+  #gameScreen > .stats-bar {
+    padding: 3px max(env(safe-area-inset-right),6px);
     gap: 4px;
-    order: 1;
-    min-width: 0;
   }
-
-  /* Stats stack vertically */
-  .stats-bar {
-    flex-direction: column;
-    gap: 3px;
-    flex: 1;
-    min-height: 0;
-  }
-  .stat-box {
-    padding: 4px 8px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 0;
-  }
-  .stat-label { font-size: 8px; letter-spacing: 0.5px; }
-  .stat-value { font-size: clamp(14px, 2.8vh, 20px); line-height: 1.15; }
-
-  .status-msg {
-    font-size: 10px;
-    min-height: 12px;
-    text-align: center;
-    flex-shrink: 0;
-    padding: 2px 0;
-  }
-
-  /* Touch buttons: stacked vertically, fill height */
-  .controls-row {
-    position: static !important;
-    flex-direction: column !important;
-    padding: 0 !important;
-    background: transparent !important;
-    border-top: none !important;
-    gap: 4px !important;
-    width: 100%;
-    flex-shrink: 0;
-    flex: 1;
-    min-height: 0;
-  }
-  .lane-btn {
-    flex: 1;
-    min-height: 0;
-    font-size: clamp(11px, 2.4vh, 15px);
-    padding: 0 6px;
-    border-radius: 10px;
-    gap: 3px;
-    font-weight: 800;
-    border-width: 1.5px;
-  }
+  .stat-box { padding: 3px 6px; flex-direction: row; align-items: center; gap: 6px; }
+  .stat-label { font-size: 9px; }
+  .stat-value { font-size: clamp(13px,3vh,16px); }
 
   /* Road canvas — takes all remaining space */
   .road-wrapper {
@@ -644,8 +598,21 @@ body.ls-active #gameScreen.active {
     min-height: 0;
     max-height: none;
     height: 100%;
-    order: 2;
     align-self: stretch;
+  }
+
+  /* Buttons stay at bottom, more compact */
+  #gameScreen > .controls-row {
+    padding: 5px max(env(safe-area-inset-right),6px) max(env(safe-area-inset-bottom),5px) max(env(safe-area-inset-left),6px);
+    gap: 6px;
+  }
+  .lane-btn {
+    min-height: 34px;
+    max-height: 40px;
+    font-size: clamp(11px, 2.4vh, 14px);
+    padding: 0 6px;
+    border-radius: 10px;
+    border-width: 1.5px;
   }
 
   /* Zoom controls: float above road bottom-right */
@@ -653,7 +620,6 @@ body.ls-active #gameScreen.active {
     bottom: max(env(safe-area-inset-bottom), 6px);
     right: max(env(safe-area-inset-right), 6px);
   }
-
   /* ── MENU landscape ── */
   .menu-body {
     flex-direction: row;
@@ -782,43 +748,44 @@ body.ls-active #gameScreen.active {
 
 <!-- ══ GAME SCREEN ══ -->
 <div class="screen" id="gameScreen">
-  <div class="game-layout" id="gameLayout">
 
-    <div class="stats-bar" id="statsBar">
-      <div class="stat-box">
-        <div class="stat-label">Score</div>
-        <div class="stat-value" id="scoreDisplay">0</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Dodged</div>
-        <div class="stat-value" id="dodgedDisplay">0</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Speed</div>
-        <div class="stat-value" id="speedDisplay">1</div>
-      </div>
+  <!-- STATS BAR — always at top -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-box">
+      <div class="stat-label">Score</div>
+      <div class="stat-value" id="scoreDisplay">0</div>
     </div>
+    <div class="stat-box">
+      <div class="stat-label">Dodged</div>
+      <div class="stat-value" id="dodgedDisplay">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Speed</div>
+      <div class="stat-value" id="speedDisplay">1</div>
+    </div>
+  </div>
 
+  <!-- CANVAS — fills remaining space -->
+  <div class="game-layout" id="gameLayout">
     <div class="road-wrapper" id="roadWrapper">
       <canvas id="roadCanvas"></canvas>
       <div class="collision-flash" id="collisionFlash"></div>
     </div>
-
     <div class="status-msg" id="statusMsg">Dodge the obstacles!</div>
-
-    <!-- ── CONTROLS inside game-layout — always visible in both orientations ── -->
-    <div class="controls-row" id="controlsRow">
-      <button class="lane-btn btn-red active-left" id="btnLeft"
-        onclick="SoundEngine.init(); onInput('left')">
-        ← Left Lane
-      </button>
-      <button class="lane-btn btn-blue" id="btnRight"
-        onclick="SoundEngine.init(); onInput('right')">
-        Right Lane →
-      </button>
-    </div>
-
   </div>
+
+  <!-- LANE BUTTONS — always at bottom -->
+  <div class="controls-row" id="controlsRow">
+    <button class="lane-btn btn-red active-left" id="btnLeft"
+      onclick="SoundEngine.init(); onInput('left')">
+      ← Left Lane
+    </button>
+    <button class="lane-btn btn-blue" id="btnRight"
+      onclick="SoundEngine.init(); onInput('right')">
+      Right Lane →
+    </button>
+  </div>
+
 </div>
 
 <!-- ══ RESULTS ══ -->
@@ -910,61 +877,21 @@ function resizeCanvas() {
 }
 
 // ─── LANDSCAPE LAYOUT ───────────────────────────────────────────────────────
+// Layout is always: stats top → canvas → buttons bottom
+// No DOM rearrangement needed for landscape — CSS handles compactness
 let landscapeMode = false;
 
 function isLandscapeQuery() {
-  // True landscape = wider than tall AND short height (phone landscape mode)
   return window.matchMedia('(orientation: landscape) and (max-height: 600px)').matches
     && window.innerWidth > window.innerHeight;
 }
 
 function applyLandscapeLayout() {
   const isLandscape = isLandscapeQuery();
-  const layout      = document.getElementById('gameLayout');
-  const controls    = document.getElementById('controlsRow');
-  if (!layout || !controls) return;
-
-  if (isLandscape && !landscapeMode) {
-    // ── Enter landscape: left col = stats + status + buttons; canvas goes RIGHT ──
-    document.body.classList.add('ls-active');
-
-    const col = document.createElement('div');
-    col.id = 'rightCol'; col.className = 'right-col';
-
-    const stats  = document.getElementById('statsBar');
-    const status = document.getElementById('statusMsg');
-    col.appendChild(stats);
-    col.appendChild(status);
-    col.appendChild(controls); // buttons inside left col
-
-    // Insert left col BEFORE the road wrapper so it appears on the left
-    const road = document.getElementById('roadWrapper');
-    layout.insertBefore(col, road);
-
-    landscapeMode = true;
-
-  } else if (!isLandscape && landscapeMode) {
-    // ── Exit landscape: restore portrait layout ──
-    document.body.classList.remove('ls-active');
-
-    const col = document.getElementById('rightCol');
-    if (col) {
-      const stats  = document.getElementById('statsBar');
-      const road   = document.getElementById('roadWrapper');
-      const status = document.getElementById('statusMsg');
-      const controls = document.getElementById('controlsRow');
-      const gameScreen = document.getElementById('gameScreen');
-      layout.innerHTML = '';
-      layout.appendChild(stats);
-      layout.appendChild(road);
-      layout.appendChild(status);
-      col.remove();
-      // Put controls back inside gameScreen (after game-layout)
-      if (controls) gameScreen.appendChild(controls);
-    }
-    landscapeMode = false;
+  if (isLandscape !== landscapeMode) {
+    landscapeMode = isLandscape;
+    document.body.classList.toggle('ls-active', isLandscape);
   }
-
   setTimeout(resizeCanvas, 60);
 }
 
@@ -1080,7 +1007,6 @@ function showScreen(id) {
   const controls = document.getElementById('controlsRow');
   if (id === 'gameScreen') {
     if (controls) controls.classList.add('visible');
-    applyLandscapeLayout(); // must run before resizeCanvas
     setTimeout(resizeCanvas, 60);
   } else {
     if (controls) controls.classList.remove('visible');
@@ -1119,18 +1045,15 @@ function startCountdown() {
 // ─── GAME ───────────────────────────────────────────────────────────────────
 function startGame() {
   resetGame(); showScreen('gameScreen');
-  // Give the DOM time to settle: layout shift from applyLandscapeLayout
-  // + fixed→inline button change needs multiple frames on some devices
   function beginAfterSettle() {
     resizeCanvas();
     requestAnimationFrame(() => {
-      resizeCanvas(); // second pass
+      resizeCanvas();
       requestAnimationFrame(() => {
-        resizeCanvas(); // third pass — guarantees wrapper has final size
+        resizeCanvas();
         G.carX        = LEFT_LANE_X;
         G.carTargetX  = LEFT_LANE_X;
         G.carY        = CANVAS_H - Math.round(CANVAS_H * 0.30);
-        // Safety clamp: car must be at least 22% from bottom edge (car height 17% + exhaust buffer)
         G.carY = Math.min(G.carY, CANVAS_H - Math.round(CANVAS_H * 0.22));
         updateHUD(); setStatus('Dodge the obstacles!', '');
         highlightLane('left');
@@ -1218,12 +1141,17 @@ function update() {
       SoundEngine.playDodge(); checkLevelUp();
     }
 
-    if (!obs.nearMissChecked && obs.y > G.carY - 20 && obs.y < G.carY + carH + 20) {
+    if (!obs.nearMissChecked && obs.y > G.carY + carH * 0.1 && obs.y < G.carY + carH * 0.6) {
       obs.nearMissChecked = true;
-      if (obs.lane !== G.carLane) {
-        G.score += 10; SoundEngine.playNearMiss();
-        setStatus('Near miss! +10', 'good');
-        setTimeout(() => { if (G.running) setStatus('Dodge the obstacles!', ''); }, 800);
+      if (obs.lane !== G.carLane && obs.passed === false) {
+        const carCenter = G.carX;
+        const obsCenter = obs.x;
+        const dist = Math.abs(carCenter - obsCenter);
+        if (dist < LANE_W * 0.9) {
+          G.score += 10; SoundEngine.playNearMiss();
+          setStatus('Near miss! +10', 'good');
+          setTimeout(() => { if (G.running) setStatus('Dodge the obstacles!', ''); }, 800);
+        }
       }
     }
 
